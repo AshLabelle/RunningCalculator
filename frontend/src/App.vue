@@ -27,6 +27,7 @@
             <button class="btn btn-primary">Calculate!</button>
           </div>
         </form>
+        <div id="time">{{ result }}</div>
       </div>
     </div>
   </div>
@@ -42,6 +43,7 @@ export default {
     return {
       distance: 10,
       pace: "6:00",
+      result: "",
     };
   },
 
@@ -65,8 +67,7 @@ export default {
       axios
         .post("http://localhost:3000/api/calculateTime", postData, axiosConfig)
         .then((response) => {
-          console.log("response:");
-          console.log(response.data);
+          this.result = `Your estimated finish time is ${response.data.time}`;
         })
         .catch((error) => {
           window.alert(`The API returned an error: ${error}`);
