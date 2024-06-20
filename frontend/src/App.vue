@@ -28,6 +28,7 @@
           </div>
         </form>
         <div id="time">{{ result }}</div>
+        <div id="data">{{ json }}</div>
       </div>
     </div>
   </div>
@@ -41,18 +42,16 @@ export default {
 
   data() {
     return {
-      distance: 10,
-      pace: "6:00",
+      distance: "10",
+      pace: "6m30s",
       result: "",
+      json: "",
     };
   },
 
   methods: {
     calcuateTime() {
-      console.log(
-        `Should calculate the finish time of ${this.distance}km at ${this.pace}/km avg pace`
-      );
-      var postData = {
+      let postData = {
         distance: this.distance,
         pace: this.pace,
       };
@@ -63,11 +62,15 @@ export default {
         },
       };
 
+      console.log("Request:");
+      console.log(postData);
+
       // Call the Go API, in this case we only need the URL parameter.
       axios
         .post("http://localhost:3000/api/calculateTime", postData, axiosConfig)
         .then((response) => {
           this.result = `Your estimated finish time is ${response.data.time}`;
+          this.json = response.data;
         })
         .catch((error) => {
           window.alert(`The API returned an error: ${error}`);

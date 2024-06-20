@@ -5,19 +5,21 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
-type calculateTimeRequest struct {
-	distance	string	`json:distance`
-	pace		string	`json:pace`
+type CalculateTimeRequest struct {
+	Distance	string `json:distance`
+	Pace		string `json:pace`
 }
 
 func calculateTimeHandler(w http.ResponseWriter, r *http.Request) {
 
-	var decoded calculateTimeRequest
+	var decoded CalculateTimeRequest
 
 	// Try to decode the request into the request struct
 	err := json.NewDecoder(r.Body).Decode(&decoded)
@@ -26,18 +28,23 @@ func calculateTimeHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// paceSplit := strings.Split(decoded.pace, ":")
-	// paceMin, err := strconv.Atoi(paceSplit[0])
-	// paceSec, err := strconv.Atoi(paceSplit[1])
+	json.Marshal(decoded);
 
-	// var result = paceMin *60 + paceSec * decoded.distance
+	p, err := time.ParseDuration(decoded.Pace)
+	checkError(err)
 
-	// Pass back the screenshot URL to the frontend.
-	fmt.Println("Returning Response")
+	min := int(p.Minutes())
+	sec := int(p.Seconds()) % 60
 
+	dist, err := strconv.Atoi(decoded.Distance)
+
+	totalSec := (min * 60 + sec) * dist
+	totalDuration := time.Duration(totalSec *1e9)
+	fmt.Println(totalDuration)
+	
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(fmt.Sprintf(`{ "time": "%s", "distance": "%s", "pace": "%s" }`, "600", decoded.distance, decoded.pace)))
+	w.Write([]byte(fmt.Sprintf(`{ "time": "%s", "distance": "%s", "pace": "%s" }`, totalDuration, decoded.Distance, decoded.Pace)))
 	checkError(err)
 }
 
