@@ -1,81 +1,30 @@
 <template>
-  <div id="app" class="container">
-    <div class="row">
-      <div class="col-md-6 offset-md-3 py-5">
-        <h1>Calculate your estimated finish time</h1>
+  <div class="card">
+    <span class="card-title">Calculate your estimated finish time</span>
 
-        <form v-on:submit.prevent="calcuateTime">
-          <div class="form-group">
-            <input
-              v-model="distance"
-              type="text"
-              id="website-input"
-              placeholder="Enter a distance in km"
-              class="form-control"
-            />
-          </div>
-          <div class="form-group">
-            <input
-              v-model="pace"
-              type="text"
-              id="website-input"
-              placeholder="Enter a pace (mm:ss) per km"
-              class="form-control"
-            />
-          </div>
-          <div class="form-group">
-            <button class="btn btn-primary">Calculate!</button>
-          </div>
-        </form>
-        <div id="time">{{ result }}</div>
-        <div id="data">{{ json }}</div>
-      </div>
+    <div class="card-content">
+      <form v-on:submit.prevent="calcuateTime">
+        <label>Distance (km)</label>
+        <input
+          v-model="distance"
+          type="text"
+          placeholder="E.g. 10"
+          class="form-input"
+        />
+        <div class="error-text">{{ distanceError }}</div>
+        <label>Pace (per km)</label>
+        <input
+          v-model="pace"
+          type="text"
+          placeholder="E.g. 6m30s"
+          class="form-input"
+        />
+        <div class="error-text">{{ paceError }}</div>
+        <input type="submit" value="Calculate!" />
+      </form>
+      <div>{{ result }}</div>
     </div>
   </div>
 </template>
 
-<script>
-import axios from "axios";
-
-export default {
-  name: "App",
-
-  data() {
-    return {
-      distance: "10",
-      pace: "6m30s",
-      result: "",
-      json: "",
-    };
-  },
-
-  methods: {
-    calcuateTime() {
-      let postData = {
-        distance: this.distance,
-        pace: this.pace,
-      };
-
-      let axiosConfig = {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      };
-
-      console.log("Request:");
-      console.log(postData);
-
-      // Call the Go API, in this case we only need the URL parameter.
-      axios
-        .post("http://localhost:3000/api/calculateTime", postData, axiosConfig)
-        .then((response) => {
-          this.result = `Your estimated finish time is ${response.data.time}`;
-          this.json = response.data;
-        })
-        .catch((error) => {
-          window.alert(`The API returned an error: ${error}`);
-        });
-    },
-  },
-};
-</script>
+<script src="./app.js"></script>
