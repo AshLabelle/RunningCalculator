@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"log"
+	"math"
 	"net/http"
 	"strconv"
 	"time"
@@ -31,27 +31,29 @@ func calculateTimeHandler(w http.ResponseWriter, r *http.Request) {
 	json.Marshal(decoded);
 
 	p, err := time.ParseDuration(decoded.Pace)
-	checkError(err)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
-	min := int(p.Minutes())
-	sec := int(p.Seconds()) % 60
+	min := math.Floor(p.Minutes())
+	sec := math.Mod(p.Seconds(), 60)
+	fmt.Println(min)
+	fmt.Println(sec)
 
-	dist, err := strconv.Atoi(decoded.Distance)
+	dist, err := strconv.ParseFloat(decoded.Distance, 64)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
 	totalSec := (min * 60 + sec) * dist
-	totalDuration := time.Duration(totalSec *1e9)
+	totalDuration := time.Duration(math.Round(totalSec) *1e9)
 	fmt.Println(totalDuration)
 	
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(fmt.Sprintf(`{ "time": "%s", "distance": "%s", "pace": "%s" }`, totalDuration, decoded.Distance, decoded.Pace)))
-	checkError(err)
-}
-
-func checkError(err error) {
-	if err != nil {
-		log.Panic(err)
-	}
 }
 
 func ping(w http.ResponseWriter, r *http.Request) {

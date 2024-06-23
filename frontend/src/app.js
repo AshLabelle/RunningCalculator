@@ -1,6 +1,5 @@
 import "./app.css";
 import axios from "axios";
-import { validateDistanceInput, validatePaceInput } from "./input-validation";
 
 export default {
   name: "App",
@@ -12,13 +11,14 @@ export default {
       result: "",
       distanceError: "",
       paceError: "",
+      errorMessage: "",
     };
   },
 
   methods: {
     calcuateTime() {
-      let distanceErrorString = validateDistanceInput(this.distance);
-      let paceErrorString = validatePaceInput(this.pace);
+      let distanceErrorString = "";
+      let paceErrorString = "";
 
       if (distanceErrorString === "" && paceErrorString === "") {
         let postData = {
@@ -44,10 +44,14 @@ export default {
           )
           .then((response) => {
             this.result = `Your estimated finish time is ${response.data.time}`;
+            this.errorMessage = "";
+            console.log("Response:");
             console.log(response.data);
           })
           .catch((error) => {
-            window.alert(`The API returned an error: ${error}`);
+            this.result = "";
+            this.errorMessage = error.response.data;
+            // window.alert(`The API returned an error: ${error}`);
           });
       }
       this.distanceError = distanceErrorString;
